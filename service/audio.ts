@@ -2,7 +2,8 @@ import {Alert} from "react-native";
 import {Audio as AudioAV} from "expo-av";
 
 interface I_Audio {
-    recording: () => Promise<string>
+    recording: () => Promise<void>
+    stopRecording: () => Promise<string>
 }
 
 class Audio implements I_Audio {
@@ -48,8 +49,12 @@ class Audio implements I_Audio {
             await this._instance.prepareToRecordAsync(this._options);
         }
 
+        await this._instance.startAsync();
+    }
 
-        return 'OK'
+    stopRecording = async () => {
+        await this._instance?.stopAndUnloadAsync()
+        return this._instance?.getURI() as string
     }
 }
 
