@@ -1,6 +1,7 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import {DEVICE_WIDTH} from "../constant";
+import {audioService} from "../service";
 
 enum RecorderStatus {
     recording = 'recording',
@@ -11,11 +12,16 @@ export const Recorder = () => {
     const [ status, setStatus ] = React.useState<RecorderStatus>(RecorderStatus.off)
 
     const toggleRecordingStatus = React.useCallback(
-        () => {
+        async () => {
             switch (status) {
                 case RecorderStatus.off:
                 default:
                     setStatus(RecorderStatus.recording)
+                    try {
+                        await audioService.recording()
+                    } catch (error) {
+                        setStatus(RecorderStatus.off)
+                    }
                     break
                 case RecorderStatus.recording:
                     setStatus(RecorderStatus.off)

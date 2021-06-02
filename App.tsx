@@ -6,8 +6,10 @@ import {Recorder} from "./components/Recorder";
 export default function App() {
   return (
       <Wrapper>
-        <Header />
-        <Recorder />
+          <>
+              <Header />
+              <Recorder />
+          </>
       </Wrapper>
   );
 }
