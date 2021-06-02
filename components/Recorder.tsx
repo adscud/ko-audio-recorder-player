@@ -8,7 +8,11 @@ enum RecorderStatus {
     off = 'off',
 }
 
-export const Recorder = () => {
+interface RecorderProps {
+    onFinishRecording: (uri: string) => void
+}
+
+export const Recorder = (props: RecorderProps) => {
     const [ status, setStatus ] = React.useState<RecorderStatus>(RecorderStatus.off)
     const [ time, setTime ] = React.useState<string>('00:00')
 
@@ -34,7 +38,7 @@ export const Recorder = () => {
                     setStatus(RecorderStatus.off)
                     try {
                         const uri = await audioService.stopRecording()
-                        console.log({uri})
+                        props.onFinishRecording(uri)
                     } catch (error) {
                         console.log({error})
                     }
