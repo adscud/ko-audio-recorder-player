@@ -2,12 +2,11 @@ import {Alert} from "react-native";
 import {Audio as AudioAV} from "expo-av";
 
 interface I_Audio {
-    _askPermission: () => Promise<boolean>
-
     recording: () => Promise<string>
 }
 
 class Audio implements I_Audio {
+    _instance: AudioAV.Recording | undefined
     _options = {
         isMeteringEnabled: true,
         android: {
@@ -43,6 +42,12 @@ class Audio implements I_Audio {
             allowsRecordingIOS: true,
             playsInSilentModeIOS: true,
         });
+
+        if (!this._instance) {
+            this._instance = new AudioAV.Recording()
+            await this._instance.prepareToRecordAsync(this._options);
+        }
+
 
         return 'OK'
     }

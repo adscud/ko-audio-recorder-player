@@ -20,6 +20,7 @@ export const Recorder = () => {
                     try {
                         await audioService.recording()
                     } catch (error) {
+                        console.log({error})
                         setStatus(RecorderStatus.off)
                     }
                     break
