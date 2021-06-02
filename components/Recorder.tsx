@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import {DEVICE_WIDTH} from "../constant";
-import {audioService} from "../service";
+import {audioService, RecordingStatusUpdateEvent} from "../service";
 
 enum RecorderStatus {
     recording = 'recording',
@@ -11,6 +11,10 @@ enum RecorderStatus {
 export const Recorder = () => {
     const [ status, setStatus ] = React.useState<RecorderStatus>(RecorderStatus.off)
 
+    const onRecordingStatusUpdate = (event: RecordingStatusUpdateEvent) => {
+        console.log({event})
+    }
+
     const toggleRecordingStatus = React.useCallback(
         async () => {
             switch (status) {
@@ -18,7 +22,7 @@ export const Recorder = () => {
                 default:
                     setStatus(RecorderStatus.recording)
                     try {
-                        await audioService.recording()
+                        await audioService.recording(onRecordingStatusUpdate)
                     } catch (error) {
                         setStatus(RecorderStatus.off)
                         console.log({error})
@@ -35,7 +39,7 @@ export const Recorder = () => {
                     break
             }
         },
-        [ status ]
+        [ status, onRecordingStatusUpdate ]
     )
 
     const action = React.useMemo(

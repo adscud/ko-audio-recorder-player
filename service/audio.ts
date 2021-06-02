@@ -1,15 +1,17 @@
 import {Alert} from "react-native";
 import {Audio as AudioAV} from "expo-av";
 
+export type RecordingStatusUpdateEvent = AudioAV.RecordingStatus
+
 interface I_Audio {
-    recording: () => Promise<void>
+    recording: (onRecordingStatusUpdate: (event: RecordingStatusUpdateEvent) => void) => Promise<void>
     stopRecording: () => Promise<string>
 }
 
 class Audio implements I_Audio {
     _instance: AudioAV.Recording | undefined
     _options = {
-        isMeteringEnabled: true,
+        isMeteringEnabled: false,
         android: {
             extension: '.m4a',
             outputFormat: AudioAV.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
@@ -31,7 +33,7 @@ class Audio implements I_Audio {
         },
     }
 
-    recording = async () => {
+    recording = async (onRecordingStatusUpdate: (event: RecordingStatusUpdateEvent) => void) => {
         const {granted} = await AudioAV.requestPermissionsAsync();
 
         if (!granted) {
@@ -50,6 +52,7 @@ class Audio implements I_Audio {
         }
 
         await this._instance.startAsync();
+        await this._instance.setOnRecordingStatusUpdate(onRecordingStatusUpdate)
     }
 
     stopRecording = async () => {
