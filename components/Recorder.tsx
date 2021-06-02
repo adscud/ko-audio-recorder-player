@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import {DEVICE_WIDTH} from "../constant";
-import {audioService, RecordingStatusUpdateEvent} from "../service";
+import {audioService, RecordingStatusUpdateEvent, timeService} from "../service";
 
 enum RecorderStatus {
     recording = 'recording',
@@ -10,9 +10,11 @@ enum RecorderStatus {
 
 export const Recorder = () => {
     const [ status, setStatus ] = React.useState<RecorderStatus>(RecorderStatus.off)
+    const [ time, setTime ] = React.useState<string>('00:00')
 
     const onRecordingStatusUpdate = (event: RecordingStatusUpdateEvent) => {
-        console.log({event})
+        const { durationMillis } = event
+        setTime(timeService.milliToMMSS(durationMillis))
     }
 
     const toggleRecordingStatus = React.useCallback(
@@ -57,6 +59,7 @@ export const Recorder = () => {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.timer}>{time}</Text>
             <TouchableHighlight
                 onPress={toggleRecordingStatus}
                 underlayColor={'#bc4040'}
@@ -86,5 +89,12 @@ const styles = StyleSheet.create({
     action: {
         color :'#ffffff',
         fontWeight: 'bold'
+    },
+    timer: {
+        color: '#333333',
+        fontSize: 15,
+        alignSelf: 'center',
+        marginBottom: 8,
+        fontWeight: 'bold',
     }
 })

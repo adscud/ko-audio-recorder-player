@@ -57,7 +57,9 @@ class Audio implements I_Audio {
 
     stopRecording = async () => {
         await this._instance?.stopAndUnloadAsync()
-        return this._instance?.getURI() as string
+        const uri =  this._instance?.getURI() as string
+        this._instance = undefined
+        return uri
     }
 }
 
