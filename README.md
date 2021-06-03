@@ -1,4 +1,4 @@
-##### Poc: Recording and playing audio.
+## Poc: Recording and playing audio.
 
 This project aims to understand audio more deeply with expo-av.
 
