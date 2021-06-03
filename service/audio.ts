@@ -1,15 +1,18 @@
 import {Alert} from "react-native";
-import {Audio as AudioAV} from "expo-av";
+import {Audio as AudioAV, AVPlaybackStatus,} from "expo-av";
 
 export type RecordingStatusUpdateEvent = AudioAV.RecordingStatus
+export type PlayingStatusUpdateEvent = AVPlaybackStatus
 
 interface I_Audio {
     recording: (onRecordingStatusUpdate: (event: RecordingStatusUpdateEvent) => void) => Promise<void>
     stopRecording: () => Promise<string>
+    playing: (uri: string, onPlayingStatusUpdate: (event: PlayingStatusUpdateEvent) => void) => Promise<void>
 }
 
 class Audio implements I_Audio {
-    _instance: AudioAV.Recording | undefined
+    _instancePlaying: AudioAV.Sound | undefined
+    _instanceRecording: AudioAV.Recording | undefined
     _options = {
         isMeteringEnabled: false,
         android: {
@@ -46,20 +49,39 @@ class Audio implements I_Audio {
             playsInSilentModeIOS: true,
         });
 
-        if (!this._instance) {
-            this._instance = new AudioAV.Recording()
-            await this._instance.prepareToRecordAsync(this._options);
+        if (!this._instanceRecording) {
+            this._instanceRecording = new AudioAV.Recording()
+            await this._instanceRecording.prepareToRecordAsync(this._options);
         }
 
-        await this._instance.startAsync();
-        await this._instance.setOnRecordingStatusUpdate(onRecordingStatusUpdate)
+        await this._instanceRecording.startAsync();
+        await this._instanceRecording.setOnRecordingStatusUpdate(onRecordingStatusUpdate)
     }
 
     stopRecording = async () => {
-        await this._instance?.stopAndUnloadAsync()
-        const uri =  this._instance?.getURI() as string
-        this._instance = undefined
+        await this._instanceRecording?.stopAndUnloadAsync()
+        const uri =  this._instanceRecording?.getURI() as string
+        this._instanceRecording = undefined
         return uri
+    }
+
+    playing = async (uri: string, onPlayingStatusUpdate: (event: PlayingStatusUpdateEvent) => void) => {
+        const { sound } = await AudioAV.Sound.createAsync({uri})
+
+        this._instancePlaying = sound
+
+        await this._instancePlaying.playAsync()
+        await this._instancePlaying.setVolumeAsync(1)
+        await this._instancePlaying.setOnPlaybackStatusUpdate(onPlayingStatusUpdate)
+    }
+
+    pause = async () => {
+        await this._instancePlaying?.pauseAsync()
+    }
+
+    resume = async (position: number) => {
+        await this._instancePlaying?.setPositionAsync(position)
+        await this._instancePlaying?.playAsync()
     }
 }
 
