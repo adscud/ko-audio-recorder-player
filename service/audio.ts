@@ -8,6 +8,8 @@ interface I_Audio {
     recording: (onRecordingStatusUpdate: (event: RecordingStatusUpdateEvent) => void) => Promise<void>
     stopRecording: () => Promise<string>
     playing: (uri: string, onPlayingStatusUpdate: (event: PlayingStatusUpdateEvent) => void) => Promise<void>
+    pause: () => Promise<void>
+    resume: (position: number) => Promise<void>
 }
 
 class Audio implements I_Audio {
